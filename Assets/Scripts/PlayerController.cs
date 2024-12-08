@@ -16,6 +16,10 @@ public class PlayerController : MonoBehaviour
 
     public Animator anim;
 
+    public float knockBackForce;
+    public float knockBackTime;
+    public float knockBackCounter;
+
     void Start()
     {
        // Player = GetComponent<Rigidbody>();
@@ -34,21 +38,32 @@ public class PlayerController : MonoBehaviour
         }
 
         //moveDirection = new Vector3(Input.GetAxis("Horizontal") * moveSpeed, moveDirection.y, Input.GetAxis("Vertical") * moveSpeed);
-        float ystore = moveDirection.y;
-        moveDirection = (transform.forward * Input.GetAxis("Vertical")) + (transform.right * Input.GetAxis("Horizontal")) ;
-        moveDirection = moveDirection.normalized * moveSpeed;
-        moveDirection.y = ystore;
 
-        if (controller.isGrounded)
+        if (knockBackCounter <= 0)
         {
 
-            moveDirection.y= 0f;
 
-            if (Input.GetButtonDown("Jump"))
+
+            float ystore = moveDirection.y;
+            moveDirection = (transform.forward * Input.GetAxis("Vertical")) + (transform.right * Input.GetAxis("Horizontal"));
+            moveDirection = moveDirection.normalized * moveSpeed;
+            moveDirection.y = ystore;
+
+            if (controller.isGrounded)
             {
-                moveDirection.y = Jump;
 
+                moveDirection.y = 0f;
+
+                if (Input.GetButtonDown("Jump"))
+                {
+                    moveDirection.y = Jump;
+
+                }
             }
+        }
+        else
+        {
+            knockBackCounter -= Time.deltaTime;
         }
         moveDirection.y = moveDirection.y + (Physics.gravity.y * gravityScale * Time.deltaTime);
  
@@ -57,5 +72,15 @@ public class PlayerController : MonoBehaviour
         anim.SetBool("isGrounded", controller.isGrounded);
         anim.SetFloat("Speed", (Mathf.Abs(Input.GetAxis("Vertical")) + Mathf.Abs(Input.GetAxis("Horizontal"))));
 
+    }
+
+    public void KnockBack(Vector3 direction)
+    {
+        knockBackCounter = knockBackTime;
+
+        direction = new Vector3(1f, 1f, 1f);
+
+        moveDirection = direction * knockBackForce;
+        
     }
 }

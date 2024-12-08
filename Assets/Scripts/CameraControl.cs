@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CameraControl : MonoBehaviour
 {
@@ -12,6 +13,11 @@ public class CameraControl : MonoBehaviour
     public bool useOffsetValue;
     public float rotateSpeed;
     public Transform pivot;
+
+    public float maxViewAngle;
+    public float minViewAngle;
+
+    public bool invertY;
     void Start()
     {
         if (!useOffsetValue)
@@ -26,14 +32,35 @@ public class CameraControl : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         
 
         // get y position of mouse and rotate the pivot
         float vertical = Input.GetAxis ("Mouse Y") * rotateSpeed;
-        pivot.Rotate(vertical, 0, 0);
+       // pivot.Rotate(vertical, 0, 0);
 
+    if (invertY)
+        {
+            pivot.Rotate(vertical, 0, 0);
+        }
+    else
+        {
+            pivot.Rotate(-vertical, 0, 0);
+        }
+
+
+        //limit up/down camera rotation
+        if (pivot.rotation.eulerAngles.x > maxViewAngle && pivot.rotation.eulerAngles.x < 180f)
+        {
+            pivot.rotation = Quaternion.Euler(maxViewAngle, 0, 0);
+
+        }
+
+        if(pivot.rotation.eulerAngles.x > 180 && pivot.rotation.eulerAngles.x < 360f+ minViewAngle)
+        {
+            pivot.rotation = Quaternion.Euler(360f + minViewAngle, 0, 0);
+        }
 
         //get x position of mouse to rotate target
         float horizontal = Input.GetAxis("Mouse X") * rotateSpeed;
@@ -47,6 +74,9 @@ public class CameraControl : MonoBehaviour
 
         //transform.position = target.position - offset;
         transform.LookAt(target);
-        
+        if(transform.position.y < target.position.y)
+        {
+            transform.position = new Vector3(transform.position.x, target.position.y - .5f, transform.position.z);
+        }
     }
 }

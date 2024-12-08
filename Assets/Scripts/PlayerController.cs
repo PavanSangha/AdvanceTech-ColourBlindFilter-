@@ -12,7 +12,9 @@ public class PlayerController : MonoBehaviour
     public CharacterController controller;
 
     private Vector3 moveDirection;
-    public float gravityScale; 
+    public float gravityScale;
+
+    public Animator anim;
 
     void Start()
     {
@@ -31,7 +33,12 @@ public class PlayerController : MonoBehaviour
           //  Player.velocity = new Vector3(Player.velocity.x, Jump, Player.velocity.z);
         }
 
-        moveDirection = new Vector3(Input.GetAxis("Horizontal") * moveSpeed, moveDirection.y, Input.GetAxis("Vertical") * moveSpeed);
+        //moveDirection = new Vector3(Input.GetAxis("Horizontal") * moveSpeed, moveDirection.y, Input.GetAxis("Vertical") * moveSpeed);
+        float ystore = moveDirection.y;
+        moveDirection = (transform.forward * Input.GetAxis("Vertical")) + (transform.right * Input.GetAxis("Horizontal")) ;
+        moveDirection = moveDirection.normalized * moveSpeed;
+        moveDirection.y = ystore;
+
         if (controller.isGrounded)
         {
 
@@ -46,5 +53,9 @@ public class PlayerController : MonoBehaviour
         moveDirection.y = moveDirection.y + (Physics.gravity.y * gravityScale * Time.deltaTime);
  
         controller.Move(moveDirection * Time .deltaTime);
+
+        anim.SetBool("isGrounded", controller.isGrounded);
+        anim.SetFloat("Speed", (Mathf.Abs(Input.GetAxis("Vertical")) + Mathf.Abs(Input.GetAxis("Horizontal"))));
+
     }
 }
